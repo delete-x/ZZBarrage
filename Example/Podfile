@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '8.0'
+
+target 'ZZBarrage_Example' do
+  pod 'ZZBarrage', :path => '../'
+
+  target 'ZZBarrage_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
