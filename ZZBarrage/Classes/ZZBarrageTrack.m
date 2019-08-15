@@ -168,7 +168,7 @@
 - (CGPoint)getItemPointWithSize:(CGSize)aSize inRect:(CGRect)rect itemObject:(ZZBarrageItemObject *)itemObject
 {
     CGFloat horSpace = 0;
-    CGFloat verMargin = 0;
+//    CGFloat verMargin = 0;
     CGFloat diffX = [ZZBarrageTrack randomFloatBetweenFloat1:horSpace float2:rect.size.width - aSize.width - horSpace];
     CGFloat diffY = 0;
 //    if (itemObject.randomY) {
