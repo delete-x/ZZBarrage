@@ -23,8 +23,8 @@
 
 @implementation ZZBarrageRenderView
 
-- (instancetype)initWithConfig:(ZZBarrageConfig *)config
-{
+- (instancetype)initWithConfig:(ZZBarrageConfig *)config {
+    
     if (self = [super init]) {
         self.config = config;
         [self initialize];
@@ -32,8 +32,8 @@
     return self;
 }
 
-- (void)initialize
-{
+- (void)initialize {
+    
     NSUInteger trackCount = self.config.trackCount;
     for (int i = 0; i < trackCount; i++) {
         ZZBarrageTrack *track = [[ZZBarrageTrack alloc] initWithConfig:self.config];
@@ -47,8 +47,8 @@
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.highContentView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0.0f]];
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
+    
     [super layoutSubviews];
     CGSize size = self.bounds.size;
     if (!CGSizeEqualToSize(size, _size) && !CGSizeEqualToSize(size, CGSizeZero)) {
@@ -64,13 +64,46 @@
     }
 }
 
-/**
- 添加一个弹幕单元
- @param itemObject    弹幕单元对象
- */
-- (void)renderBarrageItemObject:(ZZBarrageItemObject *)itemObject
-{
-    // 因为内部UI操作，此处回到主线程
+/// 启动(所有弹道)
+- (void)start {
+    
+    for (ZZBarrageTrack *track in self.trackArray) {
+        [track start];
+    }
+}
+
+/// 暂停(所有弹道)
+- (void)pause {
+    
+    for (ZZBarrageTrack *track in self.trackArray) {
+        [track pause];
+    }
+}
+
+/// 启动(某个弹道)
+- (void)startWithTrackIndex:(NSUInteger)index {
+    
+    ZZBarrageTrack *track = [self getTrackWithIndex:index];
+    [track start];
+}
+
+/// 暂停(某个弹道)
+- (void)pauseWithTrackIndex:(NSUInteger)index {
+    
+    ZZBarrageTrack *track = [self getTrackWithIndex:index];
+    [track pause];
+}
+
+
+/// 添加一个弹幕对象
+/// @param itemObject 弹幕对象
+- (void)addBarrageItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject {
+    
+    // 检查对象是否合规，若不满足条件，则直接return
+    if (![itemObject respondsToSelector:@selector(itemClass)] || ![itemObject respondsToSelector:@selector(itemSize)]) {
+        return;
+    }
+    // 涉及到UI操作，此处回到主线程
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self tryShowBarrageItemObject:itemObject]) {
             return;
@@ -79,32 +112,46 @@
     });
 }
 
-// 尝试立即渲染弹幕单元
-- (BOOL)tryShowBarrageItemObject:(ZZBarrageItemObject *)itemObject
-{
-    NSMutableArray *muTrackArray = [NSMutableArray array];
-    NSArray *trackIndexArray = itemObject.trackIndexArray;
+
+/// 尝试立即渲染弹幕
+/// @param itemObject 弹幕对象
+/// @return 是否渲染成功
+- (BOOL)tryShowBarrageItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject {
+    
+    // 被允许展示弹幕的弹道数组
+    NSMutableArray *allowTrackArray = [NSMutableArray array];
+    
+    NSArray *trackIndexArray = nil;
+    if ([itemObject respondsToSelector:@selector(trackIndexArray)]) {
+        if ([itemObject.trackIndexArray isKindOfClass:[NSArray class]]) {
+            trackIndexArray = itemObject.trackIndexArray;
+        }
+    }
+    
     if (trackIndexArray.count == 0) {
-        [muTrackArray addObjectsFromArray:_trackArray];
+        [allowTrackArray addObjectsFromArray:_trackArray];
     } else {
         for (NSNumber *indexNum in trackIndexArray) {
             if ([indexNum isKindOfClass:[NSNumber class]]) {
                 NSInteger index = [indexNum integerValue];
                 if (index < _trackArray.count) {
-                    [muTrackArray addObject:_trackArray[index]];
+                    [allowTrackArray addObject:_trackArray[index]];
                 }
             }
         }
     }
     
+    // 当前可以展示弹幕的弹道数组
     NSMutableArray *canDisplayTrackArray = [NSMutableArray array];
-    for (ZZBarrageTrack *track in muTrackArray) {
+    for (ZZBarrageTrack *track in allowTrackArray) {
         if ([track isCanDisplayItemObject:itemObject]) {
             [canDisplayTrackArray addObject:track];
         }
     }
     
+    // 在符合条件的弹道里面随机挑选一个添加弹幕item
     if (canDisplayTrackArray.count > 0) {
+        
         NSUInteger randomIndex = arc4random() % canDisplayTrackArray.count;
         ZZBarrageTrack *selectedTrack = canDisplayTrackArray[randomIndex];
         if ([_itemQueue containsObject:itemObject]) {
@@ -112,7 +159,7 @@
         }
         CGRect frame = [selectedTrack getInitialFrameWithItemObject:itemObject];
         Class itemClass = [itemObject itemClass];
-        ZZBarrageItem *item = [[itemClass alloc] initWithFrame:frame];
+        UIView<ZZBarrageItemProtocol> *item = [[itemClass alloc] initWithFrame:frame];
         [selectedTrack addDisplayingItem:item];
         [self.highContentView addSubview:item];
         if ([item respondsToSelector:@selector(shouldUpdateItemWithObject:)]) {
@@ -133,12 +180,12 @@
             }
         }];
         
-        if ([item respondsToSelector:@selector(barrageView:itemDidAddedOnContentView:object:removeHandler:)]) {
+        if ([item respondsToSelector:@selector(barrageView:itemDidAddedOnContentView:trackIndex:object:removeHandler:)]) {
             ZZBarrageItemRemoveHandler removeHandler = ^{
                 [selectedTrack removeDisplayingItem:item];
                 [item removeFromSuperview];
             };
-            [item barrageView:self itemDidAddedOnContentView:item.superview object:itemObject removeHandler:removeHandler];
+            [item barrageView:self itemDidAddedOnContentView:item.superview trackIndex:randomIndex object:itemObject removeHandler:removeHandler];
         }
         
         if ([self.delegate respondsToSelector:@selector(barrageView:didUpdateBufferQueue:)]) {
@@ -150,13 +197,19 @@
     return NO;
 }
 
-// 把弹幕单元添加到缓冲队列
-- (void)addQueueWithItemObject:(ZZBarrageItemObject *)itemObject
-{
+
+/// 添加一个弹幕对象
+/// @param itemObject 弹幕对象
+- (void)addQueueWithItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject {
+    
     if ([self.itemQueue containsObject:itemObject]) {
         return;
     }
-    switch ([itemObject queuePriority]) {
+    ZZBarrageItemQueuePriority queuePriority = ZZBarrageItemQueuePriorityLow;
+    if ([itemObject respondsToSelector:@selector(queuePriority)]) {
+        queuePriority = [itemObject queuePriority];
+    }
+    switch (queuePriority) {
             case ZZBarrageItemQueuePriorityLow:
         {
             [self.itemQueue addObject:itemObject];
@@ -178,8 +231,8 @@
     }
 }
 
-- (void)clear
-{
+- (void)clear {
+    
     for (ZZBarrageTrack *track in _trackArray) {
         [track clear];
     }
@@ -192,49 +245,62 @@
     }
 }
 
+
+#pragma mark - private
+
+- (ZZBarrageTrack *)getTrackWithIndex:(NSUInteger)index {
+    
+    if (index >= 0 && index < self.trackArray.count) {
+        return self.trackArray[index];
+    }
+    return nil;
+}
+
+
 #pragma mark - getter
-- (ZZBarrageConfig *)config
-{
+
+- (ZZBarrageConfig *)config {
+    
     if (!_config) {
         self.config = [ZZBarrageConfig new];
     }
     return _config;
 }
 
-- (UIView *)lowContentView
-{
+- (UIView *)lowContentView {
+    
     if (!_lowContentView) {
         self.lowContentView = [UIView new];
     }
     return _lowContentView;
 }
 
-- (UIView *)highContentView
-{
+- (UIView *)highContentView {
+    
     if (!_highContentView) {
         self.highContentView = [UIView new];
     }
     return _highContentView;
 }
 
-- (NSMutableArray<ZZBarrageTrack *> *)trackArray
-{
+- (NSMutableArray<ZZBarrageTrack *> *)trackArray {
+    
     if (!_trackArray) {
         self.trackArray = [NSMutableArray array];
     }
     return _trackArray;
 }
 
-- (NSMutableArray *)itemQueue
-{
+- (NSMutableArray *)itemQueue {
+    
     if (!_itemQueue) {
         self.itemQueue = [NSMutableArray array];
     }
     return _itemQueue;
 }
 
-- (dispatch_source_t)queueTimer
-{
+- (dispatch_source_t)queueTimer {
+    
     if (!_queueTimer) {
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         self.queueTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
@@ -243,7 +309,7 @@
         dispatch_source_set_event_handler(_queueTimer, ^{
             if (weakSelf.itemQueue.count > 0) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    ZZBarrageItemObject *itemObject = weakSelf.itemQueue[0];
+                    id<ZZBarrageItemObjectProtocol> itemObject = weakSelf.itemQueue[0];
                     [weakSelf tryShowBarrageItemObject:itemObject];
                 });
             }
@@ -252,8 +318,8 @@
     return _queueTimer;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
+    
     if (_queueTimer) {
         if (@available(iOS 8.0, *)) {
             dispatch_cancel(_queueTimer);

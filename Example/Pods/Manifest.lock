@@ -1,0 +1,23 @@
+PODS:
+  - Masonry (1.1.0)
+  - ZZBarrage (0.1.1)
+
+DEPENDENCIES:
+  - Masonry
+  - ZZBarrage (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - Masonry
+
+EXTERNAL SOURCES:
+  ZZBarrage:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  ZZBarrage: 3fd1f29a1f4b339a3f7f5d9e8619b0586eb748f7
+
+PODFILE CHECKSUM: 7c151531d96fef2543a1d85a6b2fd1acb5f6bc52
+
+COCOAPODS: 1.11.3

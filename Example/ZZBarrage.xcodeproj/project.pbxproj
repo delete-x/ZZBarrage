@@ -20,6 +20,10 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
+		6AA03A7228990C610027528B /* ZZBarrageAAItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AA03A7128990C610027528B /* ZZBarrageAAItem.m */; };
+		6AA03A7528990C9F0027528B /* ZZBarrageAAItemObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AA03A7428990C9F0027528B /* ZZBarrageAAItemObject.m */; };
+		6AA03A7828990CC40027528B /* ZZBarrageBBItemObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AA03A7728990CC40027528B /* ZZBarrageBBItemObject.m */; };
+		6AA03A7B28990CD70027528B /* ZZBarrageBBItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AA03A7A28990CD70027528B /* ZZBarrageBBItem.m */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		CF321A4CEB2E20455F37E87C /* Pods_ZZBarrage_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F655CC5C6C0EFA6C850CD1DE /* Pods_ZZBarrage_Tests.framework */; };
@@ -58,6 +62,14 @@
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
+		6AA03A7028990C610027528B /* ZZBarrageAAItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZZBarrageAAItem.h; sourceTree = "<group>"; };
+		6AA03A7128990C610027528B /* ZZBarrageAAItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZZBarrageAAItem.m; sourceTree = "<group>"; };
+		6AA03A7328990C9F0027528B /* ZZBarrageAAItemObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZZBarrageAAItemObject.h; sourceTree = "<group>"; };
+		6AA03A7428990C9F0027528B /* ZZBarrageAAItemObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZZBarrageAAItemObject.m; sourceTree = "<group>"; };
+		6AA03A7628990CC40027528B /* ZZBarrageBBItemObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZZBarrageBBItemObject.h; sourceTree = "<group>"; };
+		6AA03A7728990CC40027528B /* ZZBarrageBBItemObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZZBarrageBBItemObject.m; sourceTree = "<group>"; };
+		6AA03A7928990CD70027528B /* ZZBarrageBBItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZZBarrageBBItem.h; sourceTree = "<group>"; };
+		6AA03A7A28990CD70027528B /* ZZBarrageBBItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZZBarrageBBItem.m; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7562E42FDAA16E4881598C09 /* Pods_ZZBarrage_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ZZBarrage_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -132,6 +144,7 @@
 		6003F593195388D20070C39A /* Example for ZZBarrage */ = {
 			isa = PBXGroup;
 			children = (
+				6AA03A6328990C1A0027528B /* BarrageItems */,
 				6003F59C195388D20070C39A /* ZZAppDelegate.h */,
 				6003F59D195388D20070C39A /* ZZAppDelegate.m */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
@@ -183,6 +196,21 @@
 				4A8AC4C97733CF66CFEA3278 /* LICENSE */,
 			);
 			name = "Podspec Metadata";
+			sourceTree = "<group>";
+		};
+		6AA03A6328990C1A0027528B /* BarrageItems */ = {
+			isa = PBXGroup;
+			children = (
+				6AA03A7028990C610027528B /* ZZBarrageAAItem.h */,
+				6AA03A7128990C610027528B /* ZZBarrageAAItem.m */,
+				6AA03A7328990C9F0027528B /* ZZBarrageAAItemObject.h */,
+				6AA03A7428990C9F0027528B /* ZZBarrageAAItemObject.m */,
+				6AA03A7628990CC40027528B /* ZZBarrageBBItemObject.h */,
+				6AA03A7728990CC40027528B /* ZZBarrageBBItemObject.m */,
+				6AA03A7928990CD70027528B /* ZZBarrageBBItem.h */,
+				6AA03A7A28990CD70027528B /* ZZBarrageBBItem.m */,
+			);
+			path = BarrageItems;
 			sourceTree = "<group>";
 		};
 		B0CFF5D55AAC6286C2739685 /* Pods */ = {
@@ -344,16 +372,14 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ZZBarrage_Example/Pods-ZZBarrage_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Masonry/Masonry.framework",
 				"${BUILT_PRODUCTS_DIR}/ZZBarrage/ZZBarrage.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Masonry.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ZZBarrage.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,9 +394,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AA03A7828990CC40027528B /* ZZBarrageBBItemObject.m in Sources */,
 				6003F59E195388D20070C39A /* ZZAppDelegate.m in Sources */,
+				6AA03A7B28990CD70027528B /* ZZBarrageBBItem.m in Sources */,
 				6003F5A7195388D20070C39A /* ZZViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
+				6AA03A7228990C610027528B /* ZZBarrageAAItem.m in Sources */,
+				6AA03A7528990C9F0027528B /* ZZBarrageAAItemObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

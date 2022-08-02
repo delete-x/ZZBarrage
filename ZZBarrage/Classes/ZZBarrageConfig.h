@@ -12,8 +12,8 @@
 
 // 弹道个数 (default : 3)
 @property (nonatomic, assign) NSUInteger trackCount;
-// 缓冲队列最大并发数量 (default : 1)
-@property (nonatomic, assign) NSUInteger maxQueueConcurrent;
+/// 默认的最小前间隔（default : 10.0）
+@property (nonatomic, assign) CGFloat defaultMinFrontSpace;
 
 @end
 

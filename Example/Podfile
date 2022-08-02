@@ -4,6 +4,7 @@ platform :ios, '8.0'
 
 target 'ZZBarrage_Example' do
   pod 'ZZBarrage', :path => '../'
+  pod 'Masonry'
 
   target 'ZZBarrage_Tests' do
     inherit! :search_paths

@@ -1,0 +1,6 @@
+framework module ZZBarrage {
+  umbrella header "ZZBarrage-umbrella.h"
+
+  export *
+  module * { export * }
+}

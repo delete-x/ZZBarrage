@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ZZBarrageItemObject.h"
+#import "ZZBarrageItemObjectProtocol.h"     // 弹幕对象协议
 
 @class ZZBarrageRenderView;
 
@@ -18,24 +18,23 @@ typedef void(^ZZBarrageItemRemoveHandler)(void);
 @protocol ZZBarrageItemProtocol <NSObject>
 
 @required
-/**
- 根据object更新item
- @param object    弹幕Item object
- */
-- (void)shouldUpdateItemWithObject:(ZZBarrageItemObject *)object;
 
-/**
- 新的item已经添加
- @param barrageView    弹幕View
- @param contentView    装载弹幕Item的容器视图
- @param object         弹幕Item object
- @param removeHandler  弹幕Item移除操作
- */
-- (void)barrageView:(ZZBarrageRenderView *)barrageView itemDidAddedOnContentView:(UIView *)contentView object:(ZZBarrageItemObject *)object removeHandler:(ZZBarrageItemRemoveHandler)removeHandler;
+/// 根据object更新item视图
+/// @param object 弹幕对象
+- (void)shouldUpdateItemWithObject:(id<ZZBarrageItemObjectProtocol>)object;
 
-/**
- 是否响应点击事件
- */
+
+/// 新的item刚刚添加到父视图，此处用来自定义浮动动画
+/// @param barrageView 弹幕View
+/// @param contentView 装载弹幕Item的容器视图
+/// @param trackIndex 弹道坐标
+/// @param object 弹幕对象
+/// @param removeHandler 弹幕Item的移除操作
+- (void)barrageView:(ZZBarrageRenderView *)barrageView itemDidAddedOnContentView:(UIView *)contentView trackIndex:(NSUInteger)trackIndex object:(id<ZZBarrageItemObjectProtocol>)object removeHandler:(ZZBarrageItemRemoveHandler)removeHandler;
+
+
+/// 是否响应点击事件
+/// @param tap 单击手势
 - (BOOL)responseTapGesture:(UITapGestureRecognizer *)tap;
 
 @end
