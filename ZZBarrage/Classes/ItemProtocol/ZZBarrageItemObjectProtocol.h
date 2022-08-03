@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 
-@protocol ZZBarrageItemProtocol;
+@protocol ZZBarrageItemViewProtocol;
 
 typedef NS_ENUM(NSUInteger, ZZBarrageItemQueuePriority)
 {
@@ -25,15 +25,12 @@ typedef NS_ENUM(NSUInteger, ZZBarrageItemQueuePriority)
 @required
 
 // 绑定的弹幕item视图的类名
-- (Class<ZZBarrageItemProtocol>)itemClass;
+- (Class<ZZBarrageItemViewProtocol>)itemClass;
 
 // 绑定的弹幕item视图的布局大小
 - (CGSize)itemSize;
 
 @optional
-
-// 距离前面弹幕item视图的最小间距
-- (CGFloat)minFrontSpace;
 
 // 指定的弹道下标数组(如果为空，则在所有弹道中随机；否则只在指定弹道中随机)
 - (NSArray <NSNumber *>*)trackIndexArray;

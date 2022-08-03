@@ -7,17 +7,18 @@
 
 #import "ZZBarrageRenderView.h"
 #import "ZZBarrageTrack.h"              // 虚拟弹道
-#import "UIView+BlockAction.h"
+#import "ZZBarrageValueHelper.h"        // 内部值记录Helper
 
-@interface ZZBarrageRenderView ()
+
+@interface ZZBarrageRenderView () <UITableViewDelegate>
 
 @property (nonatomic, assign) CGSize size;
-@property (nonatomic, strong) UIView *lowContentView;
-@property (nonatomic, strong) UIView *highContentView;
+@property (nonatomic, strong) UIView *contentView;
 @property (nonatomic, strong) NSMutableArray *itemQueue;
 @property (nonatomic, strong) dispatch_source_t queueTimer;
 @property (nonatomic, strong) NSMutableArray<ZZBarrageTrack *> *trackArray;
 @property (nonatomic, strong) ZZBarrageConfig *config;
+@property (nonatomic, strong) ZZBarrageValueHelper *valueHelper;
 
 @end
 
@@ -39,12 +40,16 @@
         ZZBarrageTrack *track = [[ZZBarrageTrack alloc] initWithConfig:self.config];
         [self.trackArray addObject:track];
     }
-    [self addSubview:self.highContentView];
-    self.highContentView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.highContentView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1 constant:0.0f]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.highContentView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1 constant:0.0f]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.highContentView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0.0f]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.highContentView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0.0f]];
+    [self addSubview:self.contentView];
+    self.contentView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1 constant:0.0f]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1 constant:0.0f]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1 constant:0.0f]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1 constant:0.0f]];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
+    [tapGestureRecognizer addTarget:self action:@selector(handleActionTapGestureRecognizer:)];
+    [self addGestureRecognizer:tapGestureRecognizer];
 }
 
 - (void)layoutSubviews {
@@ -103,6 +108,13 @@
     if (![itemObject respondsToSelector:@selector(itemClass)] || ![itemObject respondsToSelector:@selector(itemSize)]) {
         return;
     }
+    
+    // 如果水平间距差大于0，则随机产生附加水平间距，并内部赋值
+    if (self.config.horSpaceDiff > 0) {
+        CGFloat additionalHorSpace = (arc4random() % 1000) / 999.0 * self.config.horSpaceDiff;
+        [self.valueHelper setAdditionalHorSpace:additionalHorSpace forItemObject:itemObject];
+    }
+    
     // 涉及到UI操作，此处回到主线程
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self tryShowBarrageItemObject:itemObject]) {
@@ -144,7 +156,8 @@
     // 当前可以展示弹幕的弹道数组
     NSMutableArray *canDisplayTrackArray = [NSMutableArray array];
     for (ZZBarrageTrack *track in allowTrackArray) {
-        if ([track isCanDisplayItemObject:itemObject]) {
+        CGFloat additionalHorSpace = [self.valueHelper additionalHorSpaceForItemObject:itemObject];
+        if ([track isCanDisplayItemObject:itemObject additionalHorSpace:additionalHorSpace]) {
             [canDisplayTrackArray addObject:track];
         }
     }
@@ -159,38 +172,30 @@
         }
         CGRect frame = [selectedTrack getInitialFrameWithItemObject:itemObject];
         Class itemClass = [itemObject itemClass];
-        UIView<ZZBarrageItemProtocol> *item = [[itemClass alloc] initWithFrame:frame];
-        [selectedTrack addDisplayingItem:item];
-        [self.highContentView addSubview:item];
-        if ([item respondsToSelector:@selector(shouldUpdateItemWithObject:)]) {
-            [item shouldUpdateItemWithObject:itemObject];
+        UIView<ZZBarrageItemViewProtocol> *itemView = [[itemClass alloc] initWithFrame:frame];
+        ZZBarrageItemTuple *itemTuple = [ZZBarrageItemTuple tupleWithItemView:itemView itemObject:itemObject];
+        [selectedTrack addDisplayingItemTuple:itemTuple];
+        [self.contentView addSubview:itemView];
+        if ([itemView respondsToSelector:@selector(shouldUpdateItemWithObject:)]) {
+            [itemView shouldUpdateItemWithObject:itemObject];
         }
-        __weak typeof(item) weakItem = item;
-        __weak typeof(self) weakSelf = self;
-        [item setTouchAction:^(UIView *sender, UITapGestureRecognizer *tap) {
-            
-            __strong typeof(weakItem) strongItem = weakItem;
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if ([strongItem respondsToSelector:@selector(responseTapGesture:)]) {
-                if ([strongItem responseTapGesture:tap]) {
-                    if (strongSelf.delegate && [strongSelf.delegate respondsToSelector:@selector(barrageView:didSelectItemObject:)]) {
-                        [strongSelf.delegate barrageView:strongSelf didSelectItemObject:itemObject];
-                    }
-                }
-            }
-        }];
         
-        if ([item respondsToSelector:@selector(barrageView:itemDidAddedOnContentView:trackIndex:object:removeHandler:)]) {
+        if ([itemView respondsToSelector:@selector(barrageView:itemDidAddedOnContentView:trackIndex:object:removeHandler:)]) {
             ZZBarrageItemRemoveHandler removeHandler = ^{
-                [selectedTrack removeDisplayingItem:item];
-                [item removeFromSuperview];
+                // 弹道展示的弹幕视图数组移除视图对象
+                [selectedTrack removeDisplayingItemTuple:itemTuple];
+                [itemView removeFromSuperview];
             };
-            [item barrageView:self itemDidAddedOnContentView:item.superview trackIndex:randomIndex object:itemObject removeHandler:removeHandler];
+            [itemView barrageView:self itemDidAddedOnContentView:itemView.superview trackIndex:randomIndex object:itemObject removeHandler:removeHandler];
         }
         
         if ([self.delegate respondsToSelector:@selector(barrageView:didUpdateBufferQueue:)]) {
             [self.delegate barrageView:self didUpdateBufferQueue:[NSArray arrayWithArray:self.itemQueue]];
         }
+        
+        // valueHelper移除itemObject
+        [self.valueHelper removeItemObject:itemObject];
+        
         return YES;
     }
     
@@ -210,14 +215,34 @@
         queuePriority = [itemObject queuePriority];
     }
     switch (queuePriority) {
-            case ZZBarrageItemQueuePriorityLow:
+        case ZZBarrageItemQueuePriorityLow:
         {
             [self.itemQueue addObject:itemObject];
         }
             break;
-            case ZZBarrageItemQueuePriorityHigh:
+        case ZZBarrageItemQueuePriorityHigh:
         {
-            [self.itemQueue insertObject:itemObject atIndex:0];
+            NSArray *tempItemQueue = [NSArray arrayWithArray:self.itemQueue];
+            if (tempItemQueue.count > 0) {
+                for (int i = 0; i < tempItemQueue.count; i++) {
+                    id<ZZBarrageItemObjectProtocol> theItemObject = tempItemQueue[i];
+                    ZZBarrageItemQueuePriority theQueuePriority = ZZBarrageItemQueuePriorityLow;
+                    if ([theItemObject respondsToSelector:@selector(queuePriority)]) {
+                        theQueuePriority = [theItemObject queuePriority];
+                    }
+                    if (theQueuePriority < queuePriority) {
+                        if (self.itemQueue.count >= i) {
+                            [self.itemQueue insertObject:itemObject atIndex:i];
+                        }
+                        break;
+                    } else if (i == self.itemQueue.count - 1) {
+                        [self.itemQueue addObject:itemObject];
+                    }
+                }
+            } else {
+                [self.itemQueue addObject:itemObject];
+            }
+            
         }
             break;
         default:
@@ -231,13 +256,14 @@
     }
 }
 
+
 - (void)clear {
     
     for (ZZBarrageTrack *track in _trackArray) {
         [track clear];
     }
     [self.itemQueue removeAllObjects];
-    for (UIView *subView in self.highContentView.subviews) {
+    for (UIView *subView in self.contentView.subviews) {
         [subView removeFromSuperview];
     }
     if ([self.delegate respondsToSelector:@selector(barrageView:didUpdateBufferQueue:)]) {
@@ -257,7 +283,7 @@
 }
 
 
-#pragma mark - getter
+#pragma mark - lazy
 
 - (ZZBarrageConfig *)config {
     
@@ -267,20 +293,12 @@
     return _config;
 }
 
-- (UIView *)lowContentView {
+- (UIView *)contentView {
     
-    if (!_lowContentView) {
-        self.lowContentView = [UIView new];
+    if (!_contentView) {
+        self.contentView = [UIView new];
     }
-    return _lowContentView;
-}
-
-- (UIView *)highContentView {
-    
-    if (!_highContentView) {
-        self.highContentView = [UIView new];
-    }
-    return _highContentView;
+    return _contentView;
 }
 
 - (NSMutableArray<ZZBarrageTrack *> *)trackArray {
@@ -299,12 +317,20 @@
     return _itemQueue;
 }
 
+- (ZZBarrageValueHelper *)valueHelper {
+    
+    if (!_valueHelper) {
+        self.valueHelper = [[ZZBarrageValueHelper alloc] init];
+    }
+    return _valueHelper;
+}
+
 - (dispatch_source_t)queueTimer {
     
     if (!_queueTimer) {
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         self.queueTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-        dispatch_source_set_timer(_queueTimer, dispatch_walltime(NULL, 0.3 * NSEC_PER_SEC), 0.3 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
+        dispatch_source_set_timer(_queueTimer, dispatch_walltime(NULL, 0.1 * NSEC_PER_SEC), 0.1 * NSEC_PER_SEC, 0.1 * NSEC_PER_SEC);
         __weak typeof(self) weakSelf = self;
         dispatch_source_set_event_handler(_queueTimer, ^{
             if (weakSelf.itemQueue.count > 0) {
@@ -317,6 +343,34 @@
     }
     return _queueTimer;
 }
+
+
+#pragma mark - event
+
+- (void)handleActionTapGestureRecognizer:(UITapGestureRecognizer *)tap {
+    
+    CGPoint point = [tap locationInView:self];
+    for (ZZBarrageTrack *track in _trackArray) {
+        for (ZZBarrageItemTuple *itemTuple in track.displayingItemTuples) {
+            UIView<ZZBarrageItemViewProtocol> *itemView = itemTuple.itemView;
+            CGRect presentingRect = itemView.frame;
+            // 如果不在动画中则presentationLayer为空，在动画中就需要实时的判断点击是否点中动画中的动画
+            if (itemView.layer.presentationLayer) {
+                presentingRect = itemView.layer.presentationLayer.frame;
+            }
+            BOOL isInside = CGRectContainsPoint(presentingRect, point);
+            if (isInside) {
+                if (self.delegate && [self.delegate respondsToSelector:@selector(barrageView:didSelectItemView:itemObject:)]) {
+                    
+                    [self.delegate barrageView:self didSelectItemView:itemView itemObject:itemTuple.itemObject];
+                }
+            }
+        }
+    }
+}
+
+
+#pragma mark - dealloc
 
 - (void)dealloc {
     

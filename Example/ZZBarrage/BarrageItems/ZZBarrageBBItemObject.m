@@ -12,7 +12,7 @@
 @implementation ZZBarrageBBItemObject
 
 // 绑定的弹幕item视图的类名
-- (Class<ZZBarrageItemProtocol>)itemClass {
+- (Class<ZZBarrageItemViewProtocol>)itemClass {
     
     return [ZZBarrageBBItem class];
 }
@@ -22,13 +22,6 @@
     
     return CGSizeMake(100, 30);
 }
-
-// 距离前面弹幕item视图的最小间距
-- (CGFloat)minFrontSpace {
-    
-    return 20;
-}
-
 
 // 排队优先级
 - (ZZBarrageItemQueuePriority)queuePriority {

@@ -33,7 +33,7 @@
 }
 
 
-#pragma mark - ZZBarrageItemProtocol
+#pragma mark - ZZBarrageItemViewProtocol
 
 /// 根据object更新item视图
 /// @param object 弹幕对象
@@ -64,14 +64,6 @@
     }];
 }
 
-/**
- 是否响应点击事件
- */
-- (BOOL)responseTapGesture:(UITapGestureRecognizer *)tap {
-    
-    return NO;
-}
-
 
 #pragma mark - lazy
 
@@ -82,7 +74,6 @@
         _textLabel.textColor = [UIColor blueColor];
         _textLabel.textAlignment = NSTextAlignmentCenter;
         _textLabel.layer.masksToBounds = YES;
-        _textLabel.layer.cornerRadius = 15.0f;
         _textLabel.layer.borderWidth = 1.0;
         _textLabel.layer.borderColor = [UIColor blueColor].CGColor;
     }

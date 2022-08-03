@@ -10,12 +10,13 @@
 
 @interface ZZBarrageTrack ()
 
-@property (nonatomic, strong) NSMutableArray<UIView<ZZBarrageItemProtocol> *> *displayingItems;
+@property (nonatomic, strong) NSMutableArray<ZZBarrageItemTuple *> *displayingItemTuples;
 @property (nonatomic, strong) ZZBarrageConfig *config;
 
 @end
 
 @implementation ZZBarrageTrack
+
 
 #pragma mark - public
 
@@ -35,7 +36,8 @@
         return;
     }
     self.available = YES;
-    for (UIView *itemView in _displayingItems) {
+    for (ZZBarrageItemTuple *itemTuple in _displayingItemTuples) {
+        UIView *itemView = itemTuple.itemView;
         CALayer *layer = itemView.layer;
         CFTimeInterval pausedTime = [layer timeOffset];
         layer.speed = 1.0;
@@ -54,7 +56,8 @@
         return;
     }
     self.available = NO;
-    for (UIView *itemView in _displayingItems) {
+    for (ZZBarrageItemTuple *itemTuple in _displayingItemTuples) {
+        UIView *itemView = itemTuple.itemView;
         CALayer *layer = itemView.layer;
         CFTimeInterval pausedTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil];
         layer.speed = 0.0;
@@ -65,18 +68,16 @@
 
 /// 判断当前弹道是否可以立马展示弹幕
 /// @param itemObject 弹幕对象
+/// @param additionalHorSpace 附加水平间距
 /// @return 是否可以立马展示
-- (BOOL)isCanDisplayItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject {
+- (BOOL)isCanDisplayItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject additionalHorSpace:(CGFloat)additionalHorSpace {
     
     if (!_available) {
         return NO;
     }
     CGFloat right = [self getCurrentDisplayingItemsRight];
-    CGFloat minFrontSpace = self.config.defaultMinFrontSpace;
-    if ([itemObject respondsToSelector:@selector(minFrontSpace)]) {
-        minFrontSpace = itemObject.minFrontSpace;
-    }
-    if (right + minFrontSpace > self.frame.size.width) {
+    CGFloat minHorSpace = self.config.minHorSpace + additionalHorSpace;
+    if (right + minHorSpace > self.frame.size.width) {
         return NO;
     }
     return YES;
@@ -93,30 +94,42 @@
         itemSize = itemObject.itemSize;
     }
     CGFloat x = self.frame.size.width;
+    // 默认居中
     CGFloat y = self.frame.origin.y + (self.frame.size.height - itemSize.height) / 2.0;
+    // 如果有间距差，则在可随机范围内随机出y值
+    if (self.config.verSpaceDiff > 0) {
+        // 先判断是否有可浮动的垂直空间
+        CGFloat yDiff = (self.frame.size.height - itemSize.height) - self.config.minVerSpace;
+        if (yDiff > 0) {
+            yDiff = (arc4random() % 1000) / 999.0 * MIN(yDiff, self.config.verSpaceDiff) / 2.0;
+            CGFloat additionalVerSpace = (arc4random() % 2) > 0 ? yDiff : -yDiff;
+            y = y + additionalVerSpace;
+        }
+    }
     return CGRectMake(x, y, itemSize.width, itemSize.height);
 }
 
 
 /// 添加显示的弹幕item记录
-/// @param barrageItem 弹幕item
-- (void)addDisplayingItem:(UIView<ZZBarrageItemProtocol> *)barrageItem {
+/// @param itemTuple 弹幕元组
+- (void)addDisplayingItemTuple:(ZZBarrageItemTuple *)itemTuple {
     
-    [self.displayingItems addObject:barrageItem];
+    [self.displayingItemTuples addObject:itemTuple];
 }
 
 
 /// 移除显示的弹幕item记录
-/// @param barrageItem 弹幕item
-- (void)removeDisplayingItem:(UIView<ZZBarrageItemProtocol> *)barrageItem {
+/// @param itemTuple 弹幕元组
+- (void)removeDisplayingItemTuple:(ZZBarrageItemTuple *)itemTuple {
     
-    [self.displayingItems removeObject:barrageItem];
+    [self.displayingItemTuples removeObject:itemTuple];
 }
 
 
+/// 清空记录
 - (void)clear {
     
-    [self.displayingItems removeAllObjects];
+    [self.displayingItemTuples removeAllObjects];
 }
 
 
@@ -127,7 +140,8 @@
 - (CGFloat)getCurrentDisplayingItemsRight {
     
     CGFloat right = 0;
-    for (UIView *itemView in _displayingItems) {
+    for (ZZBarrageItemTuple *itemTuple in _displayingItemTuples) {
+        UIView *itemView = itemTuple.itemView;
         CGRect itemFrame = itemView.layer.presentationLayer.frame;
         CGFloat frameRight = itemFrame.origin.x + itemFrame.size.width;
         if (frameRight > right) {
@@ -139,12 +153,12 @@
 
 #pragma mark - getter
 
-- (NSMutableArray<UIView<ZZBarrageItemProtocol> *> *)displayingItems {
+- (NSMutableArray<ZZBarrageItemTuple *> *)displayingItemTuples {
     
-    if (!_displayingItems) {
-        self.displayingItems = [NSMutableArray array];
+    if (!_displayingItemTuples) {
+        self.displayingItemTuples = [NSMutableArray array];
     }
-    return _displayingItems;
+    return _displayingItemTuples;
 }
 
 @end

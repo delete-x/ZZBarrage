@@ -28,6 +28,10 @@
 {
     [super viewDidLoad];
     
+//    NSMutableArray *muArray = [NSMutableArray arrayWithArray:@[@"1", @"2"]];
+//    [muArray insertObject:@"3" atIndex:2];
+//    NSLog(@"%@", muArray);
+    
     self.navigationController.navigationBar.translucent = NO;
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
@@ -146,12 +150,25 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-#pragma mark - handle action
+
+#pragma mark - ZZBarrageRenderViewDelegate
+
+// 弹幕被点击时触发
+- (void)barrageView:(ZZBarrageRenderView *)barrageView didSelectItemView:(UIView<ZZBarrageItemViewProtocol> *)itemView itemObject:(id<ZZBarrageItemObjectProtocol>)itemObject {
+    
+    
+    NSLog(@"弹幕%@被点击，地址%p", NSStringFromClass(itemObject.itemClass), itemObject);
+}
+
+#pragma mark - lazy
 
 - (ZZBarrageRenderView *)barrageRenderView {
     if (!_barrageRenderView) {
         ZZBarrageConfig *config = [ZZBarrageConfig new];
         config.trackCount = 3;
+        config.minVerSpace = 2.0;
+        config.horSpaceDiff = 20.0f;
+        config.verSpaceDiff = 20.0f;
         self.barrageRenderView = [[ZZBarrageRenderView alloc] initWithConfig:config];
         _barrageRenderView.backgroundColor = [UIColor whiteColor];
         _barrageRenderView.delegate = self;

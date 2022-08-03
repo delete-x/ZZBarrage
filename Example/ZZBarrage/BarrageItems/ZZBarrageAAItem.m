@@ -32,7 +32,7 @@
     return self;
 }
 
-#pragma mark - ZZBarrageItemProtocol
+#pragma mark - ZZBarrageItemViewProtocol
 
 /// 根据object更新item视图
 /// @param object 弹幕对象
@@ -70,14 +70,6 @@
         });
         
     }];
-}
-
-/**
- 是否响应点击事件
- */
-- (BOOL)responseTapGesture:(UITapGestureRecognizer *)tap {
-    
-    return NO;
 }
 
 

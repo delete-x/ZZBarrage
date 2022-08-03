@@ -13,7 +13,10 @@
     if (self = [super init]) {
         // 设置默认值
         self.trackCount = 3;
-        self.defaultMinFrontSpace = 10.0f;
+        self.minVerSpace = 2.0f;
+        self.minHorSpace = 8.0f;
+        self.verSpaceDiff = 0.0f;
+        self.horSpaceDiff = 0.0f;
     }
     return self;
 }

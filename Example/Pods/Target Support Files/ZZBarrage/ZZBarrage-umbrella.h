@@ -10,12 +10,13 @@
 #endif
 #endif
 
-#import "UIView+BlockAction.h"
-#import "ZZBarrageConfig.h"
 #import "ZZBarrageItemObjectProtocol.h"
-#import "ZZBarrageItemProtocol.h"
+#import "ZZBarrageItemViewProtocol.h"
+#import "ZZBarrageConfig.h"
+#import "ZZBarrageItemTuple.h"
 #import "ZZBarrageRenderView.h"
 #import "ZZBarrageTrack.h"
+#import "ZZBarrageValueHelper.h"
 
 FOUNDATION_EXPORT double ZZBarrageVersionNumber;
 FOUNDATION_EXPORT const unsigned char ZZBarrageVersionString[];

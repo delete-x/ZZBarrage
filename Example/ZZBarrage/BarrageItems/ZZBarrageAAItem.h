@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <ZZBarrage/ZZBarrageItemProtocol.h>
+#import <ZZBarrage/ZZBarrageItemViewProtocol.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ZZBarrageAAItem : UIView <ZZBarrageItemProtocol>
+@interface ZZBarrageAAItem : UIView <ZZBarrageItemViewProtocol>
 
 
 @end

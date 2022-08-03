@@ -1,5 +1,5 @@
 //
-//  ZZBarrageItemProtocol.h
+//  ZZBarrageItemViewProtocol.h
 //  ZZRandomBarrageExample
 //
 //  Created by 任强宾(18137801314) on 2018/6/6.
@@ -7,15 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ZZBarrageItemObjectProtocol.h"     // 弹幕对象协议
+#import "ZZBarrageItemObjectProtocol.h"     // 弹幕item对象协议
 
 @class ZZBarrageRenderView;
 
 typedef void(^ZZBarrageItemRemoveHandler)(void);
+
 /*
- 弹幕item协议
+ 弹幕item视图协议
  */
-@protocol ZZBarrageItemProtocol <NSObject>
+@protocol ZZBarrageItemViewProtocol <NSObject>
 
 @required
 
@@ -32,9 +33,5 @@ typedef void(^ZZBarrageItemRemoveHandler)(void);
 /// @param removeHandler 弹幕Item的移除操作
 - (void)barrageView:(ZZBarrageRenderView *)barrageView itemDidAddedOnContentView:(UIView *)contentView trackIndex:(NSUInteger)trackIndex object:(id<ZZBarrageItemObjectProtocol>)object removeHandler:(ZZBarrageItemRemoveHandler)removeHandler;
 
-
-/// 是否响应点击事件
-/// @param tap 单击手势
-- (BOOL)responseTapGesture:(UITapGestureRecognizer *)tap;
 
 @end

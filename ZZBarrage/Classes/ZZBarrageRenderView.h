@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 #import "ZZBarrageConfig.h"
 #import "ZZBarrageItemObjectProtocol.h"     // 弹幕对象协议
-#import "ZZBarrageItemProtocol.h"           // 弹幕视图协议
+#import "ZZBarrageItemViewProtocol.h"           // 弹幕视图协议
 
 @class ZZBarrageRenderView;
 /*
@@ -17,10 +17,10 @@
 @protocol ZZBarrageRenderViewDelegate <NSObject>
 
 @optional
+// 弹幕被点击时触发
+- (void)barrageView:(ZZBarrageRenderView *)barrageView didSelectItemView:(UIView<ZZBarrageItemViewProtocol> *)itemView itemObject:(id<ZZBarrageItemObjectProtocol>)itemObject;
 // 弹幕队列更新时触发
 - (void)barrageView:(ZZBarrageRenderView *)barrageView didUpdateBufferQueue:(NSArray *)bufferQueue;
-// 弹幕被点击时触发
-- (void)barrageView:(ZZBarrageRenderView *)barrageView didSelectItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject;
 
 @end
 

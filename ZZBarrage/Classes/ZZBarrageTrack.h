@@ -9,7 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "ZZBarrageConfig.h"                 // 弹幕配置
 #import "ZZBarrageItemObjectProtocol.h"     // 弹幕对象协议
-#import "ZZBarrageItemProtocol.h"           // 弹幕单元协议
+#import "ZZBarrageItemViewProtocol.h"           // 弹幕单元协议
+#import "ZZBarrageItemTuple.h"              // 弹幕元组
 
 
 @interface ZZBarrageTrack : NSObject
@@ -17,7 +18,7 @@
 /// 弹道的虚拟frame
 @property (nonatomic, assign) CGRect frame;
 /// 当前正在本弹道展示的弹幕item数组
-@property (nonatomic, strong, readonly) NSMutableArray<UIView<ZZBarrageItemProtocol> *> *displayingItems;
+@property (nonatomic, strong, readonly) NSMutableArray<ZZBarrageItemTuple *> *displayingItemTuples;
 /// 是否是可用状态
 @property (nonatomic, assign) BOOL available;
 
@@ -34,8 +35,9 @@
 
 /// 判断当前弹道是否可以立马展示弹幕
 /// @param itemObject 弹幕对象
+/// @param additionalHorSpace 附加水平间距
 /// @return 是否可以立马展示
-- (BOOL)isCanDisplayItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject;
+- (BOOL)isCanDisplayItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject additionalHorSpace:(CGFloat)additionalHorSpace;
 
 /// 获取弹幕初始的frame
 /// @param itemObject 弹幕对象
@@ -43,12 +45,12 @@
 - (CGRect)getInitialFrameWithItemObject:(id<ZZBarrageItemObjectProtocol>)itemObject;
 
 /// 添加显示的弹幕item记录
-/// @param barrageItem 弹幕item
-- (void)addDisplayingItem:(UIView<ZZBarrageItemProtocol> *)barrageItem;
+/// @param itemTuple 弹幕元组
+- (void)addDisplayingItemTuple:(ZZBarrageItemTuple *)itemTuple;
 
 /// 移除显示的弹幕item记录
-/// @param barrageItem 弹幕item
-- (void)removeDisplayingItem:(UIView<ZZBarrageItemProtocol> *)barrageItem;
+/// @param itemTuple 弹幕元组
+- (void)removeDisplayingItemTuple:(ZZBarrageItemTuple *)itemTuple;
 
 /// 清空记录
 - (void)clear;
