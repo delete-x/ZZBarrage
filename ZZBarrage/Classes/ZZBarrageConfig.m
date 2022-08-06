@@ -2,7 +2,7 @@
 //  ZZBarrageConfig.m
 //  SCSocialMovieHallModule
 //
-//  Created by 任强宾 on 2019/7/1.
+//  Created by 任强宾(QQ:1850665560) on 2019/7/1.
 //
 
 #import "ZZBarrageConfig.h"
@@ -17,6 +17,7 @@
         self.minHorSpace = 8.0f;
         self.verSpaceDiff = 0.0f;
         self.horSpaceDiff = 0.0f;
+        self.throughEvents = NO;
     }
     return self;
 }

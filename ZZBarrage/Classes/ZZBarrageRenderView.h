@@ -2,12 +2,12 @@
 //  ZZBarrageRenderView.h
 //  SCSocialMovieHallModule
 //
-//  Created by 任强宾 on 2019/7/1.
+//  Created by 任强宾(QQ:1850665560) on 2019/7/1.
 //
 
 #import <UIKit/UIKit.h>
 #import "ZZBarrageConfig.h"
-#import "ZZBarrageItemObjectProtocol.h"     // 弹幕对象协议
+#import "ZZBarrageItemObjectProtocol.h"         // 弹幕对象协议
 #import "ZZBarrageItemViewProtocol.h"           // 弹幕视图协议
 
 @class ZZBarrageRenderView;

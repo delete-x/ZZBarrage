@@ -78,7 +78,7 @@
 - (UILabel *)textLabel {
     if (!_textLabel) {
         self.textLabel = [[UILabel alloc] init];
-        _textLabel.backgroundColor = [UIColor lightGrayColor];
+        _textLabel.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1.0];
         _textLabel.textColor = [UIColor redColor];
         _textLabel.textAlignment = NSTextAlignmentCenter;
         _textLabel.layer.masksToBounds = YES;

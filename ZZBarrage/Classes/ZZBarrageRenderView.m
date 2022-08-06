@@ -2,7 +2,7 @@
 //  ZZBarrageRenderView.m
 //  SCSocialMovieHallModule
 //
-//  Created by 任强宾 on 2019/7/1.
+//  Created by 任强宾(QQ:1850665560) on 2019/7/1.
 //
 
 #import "ZZBarrageRenderView.h"
@@ -367,6 +367,30 @@
             }
         }
     }
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    
+    if (!self.config.throughEvents) {
+        return [super hitTest:point withEvent:event];
+    }
+    
+    // 判断点击位置是否在弹幕View上
+    for (ZZBarrageTrack *track in _trackArray) {
+        for (ZZBarrageItemTuple *itemTuple in track.displayingItemTuples) {
+            UIView<ZZBarrageItemViewProtocol> *itemView = itemTuple.itemView;
+            CGRect presentingRect = itemView.frame;
+            // 如果不在动画中则presentationLayer为空，在动画中就需要实时的判断点击是否点中动画中的动画
+            if (itemView.layer.presentationLayer) {
+                presentingRect = itemView.layer.presentationLayer.frame;
+            }
+            BOOL isInside = CGRectContainsPoint(presentingRect, point);
+            if (isInside) {
+                return [super hitTest:point withEvent:event];
+            }
+        }
+    }
+    return nil;
 }
 
 

@@ -2,7 +2,7 @@
 //  ZZBarrageItemTuple.h
 //  ZZBarrage
 //
-//  Created by 任强宾 on 2022/8/3.
+//  Created by 任强宾(QQ:1850665560) on 2022/8/3.
 //
 
 #import <Foundation/Foundation.h>

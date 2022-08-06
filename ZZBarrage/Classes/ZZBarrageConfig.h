@@ -2,7 +2,7 @@
 //  ZZBarrageConfig.h
 //  SCSocialMovieHallModule
 //
-//  Created by 任强宾 on 2019/7/1.
+//  Created by 任强宾(QQ:1850665560) on 2019/7/1.
 //
 
 #import <Foundation/Foundation.h>
@@ -21,6 +21,9 @@
 @property (nonatomic, assign) CGFloat verSpaceDiff;
 /// 弹幕水平间距差(间距差越大，排队的弹幕水平间距随机范围越大) (default : 0.0f)
 @property (nonatomic, assign) CGFloat horSpaceDiff;
+
+/// 点击非弹幕的空白区域，是否把事件穿透到下层 (default : NO)
+@property (nonatomic, assign) BOOL throughEvents;
 
 @end
 

@@ -20,6 +20,9 @@
 @property (nonatomic, strong) UIButton *addAABtn;
 @property (nonatomic, strong) UIButton *addBBBtn;
 
+// 弹幕下方btn（测试弹幕view的事件穿透）
+@property (nonatomic, strong) UIButton *testThroughBtn;
+
 @end
 
 @implementation ZZViewController
@@ -43,11 +46,20 @@
     self.view.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
     
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    [self.view addSubview:self.testThroughBtn];
+    
     [self.view addSubview:self.barrageRenderView];
     [self.view addSubview:self.startBtn];
     [self.view addSubview:self.pauseBtn];
     [self.view addSubview:self.addAABtn];
     [self.view addSubview:self.addBBBtn];
+    
+    [self.testThroughBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.offset(0);
+        make.width.offset(100);
+        make.height.offset(40);
+    }];
     
     [self.barrageRenderView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.left.right.offset(0);
@@ -108,6 +120,11 @@
     [self.barrageRenderView addBarrageItemObject:bbItemObject];
 }
 
+- (void)handleActionTestThroughBtn:(UIButton *)sender {
+    
+    NSLog(@"弹幕下面的按钮被点击到了!");
+}
+
 - (void)handleAlertWithIsPause:(BOOL)isPause {
     
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"选项" message:nil preferredStyle:(UIAlertControllerStyleActionSheet)];
@@ -157,7 +174,7 @@
 - (void)barrageView:(ZZBarrageRenderView *)barrageView didSelectItemView:(UIView<ZZBarrageItemViewProtocol> *)itemView itemObject:(id<ZZBarrageItemObjectProtocol>)itemObject {
     
     
-    NSLog(@"弹幕%@被点击，地址%p", NSStringFromClass(itemObject.itemClass), itemObject);
+    NSLog(@"弹幕%@被点击，地址:%p", NSStringFromClass(itemObject.itemClass), itemObject);
 }
 
 #pragma mark - lazy
@@ -169,8 +186,9 @@
         config.minVerSpace = 2.0;
         config.horSpaceDiff = 20.0f;
         config.verSpaceDiff = 20.0f;
+        config.throughEvents = YES;
         self.barrageRenderView = [[ZZBarrageRenderView alloc] initWithConfig:config];
-        _barrageRenderView.backgroundColor = [UIColor whiteColor];
+        _barrageRenderView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.8];
         _barrageRenderView.delegate = self;
     }
     return _barrageRenderView;
@@ -221,5 +239,15 @@
 }
 
 
+- (UIButton *)testThroughBtn {
+    if (!_testThroughBtn) {
+        self.testThroughBtn = [UIButton buttonWithType:(UIButtonTypeSystem)];
+        _testThroughBtn.backgroundColor = [UIColor redColor];
+        [_testThroughBtn setTitle:@"弹幕View下面的按钮" forState:(UIControlStateNormal)];
+        [_testThroughBtn setTitleColor:[UIColor whiteColor] forState:(UIControlStateNormal)];
+        [_testThroughBtn addTarget:self action:@selector(handleActionTestThroughBtn:) forControlEvents:(UIControlEventTouchUpInside)];
+    }
+    return _testThroughBtn;
+}
 
 @end

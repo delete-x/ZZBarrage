@@ -58,19 +58,20 @@
 
         self.transform = CGAffineTransformTranslate(self.transform, -(barrageView.bounds.size.width + self.bounds.size.width), 0);
         
+//        self.frame = CGRectMake(-self.bounds.size.width, self.frame.origin.y, self.bounds.size.width, self.bounds.size.height);
+        
     } completion:^(BOOL finished) {
         
         removeHandler();
     }];
 }
 
-
 #pragma mark - lazy
 
 - (UILabel *)textLabel {
     if (!_textLabel) {
         self.textLabel = [[UILabel alloc] init];
-        _textLabel.backgroundColor = [UIColor lightGrayColor];
+        _textLabel.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1.0];
         _textLabel.textColor = [UIColor blueColor];
         _textLabel.textAlignment = NSTextAlignmentCenter;
         _textLabel.layer.masksToBounds = YES;
